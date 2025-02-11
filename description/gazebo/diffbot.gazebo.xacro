@@ -14,23 +14,61 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
       </plugin>
     </gazebo>
 
-    <!-- Link1 -->
+    <!-- Base Link -->
     <gazebo reference="${prefix}base_link">
       <material>Gazebo/Orange</material>
     </gazebo>
 
-    <!-- Link2 -->
+    <!-- Left Wheel -->
     <gazebo reference="${prefix}left_wheel">
-      <mu1>0.2</mu1>
-      <mu2>0.2</mu2>
+      <kp>1000000.0</kp>
+      <kd>10.0</kd>
+      <friction>
+        <ode>
+          <mu>10</mu>
+          <mu2>10</mu2>
+        </ode>
+      </friction>
       <material>Gazebo/Black</material>
     </gazebo>
 
-    <!-- Link3 -->
+    <!-- Right Wheel -->
     <gazebo reference="${prefix}right_wheel">
-      <mu1>0.2</mu1>
-      <mu2>0.2</mu2>
+      <kp>1000000.0</kp>
+      <kd>10.0</kd>
+      <friction>
+        <ode>
+          <mu>10</mu>
+          <mu2>10</mu2>
+        </ode>
+      </friction>
       <material>Gazebo/Black</material>
+    </gazebo>
+
+    <!-- Caster Frontal Wheel -->
+    <gazebo reference="${prefix}caster_frontal_wheel">
+      <kp>1000000.0</kp>  <!-- Lower than drive wheels -->
+      <kd>5.0</kd>
+      <friction>
+        <ode>
+          <mu>0.001</mu>
+          <mu2>0.001</mu2>
+        </ode>
+      </friction>
+      <material>Gazebo/White</material>
+    </gazebo>
+
+    <!-- Caster Rear Wheel -->
+    <gazebo reference="${prefix}caster_rear_wheel">
+      <kp>1000000.0</kp>
+      <kd>5.0</kd>
+      <friction>
+        <ode>
+          <mu>0.001</mu>
+          <mu2>0.001</mu2>
+        </ode>
+      </friction>
+      <material>Gazebo/White</material>
     </gazebo>
 
   </xacro:macro>

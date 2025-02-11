@@ -52,6 +52,8 @@ def generate_launch_description():
     gui = LaunchConfiguration("gui")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     use_gazebo_classic = LaunchConfiguration("use_gazebo_classic")
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+
 
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -75,7 +77,7 @@ def generate_launch_description():
             "use_mock_hardware:=", use_mock_hardware,
         ]
     )
-    robot_description = {"robot_description": robot_description_content}
+    robot_description = {"robot_description": robot_description_content, 'use_sim_time': use_sim_time,}
     
     rviz_config_file = PathJoinSubstitution(
         [FindPackageShare("ros2_control_demo_description"), "diffbot/rviz", "diffbot.rviz"]
@@ -111,6 +113,7 @@ def generate_launch_description():
         executable="rviz2",
         name="rviz2",
         output="log",
+        parameters=[{'use_sim_time': True}],
         arguments=["-d", rviz_config_file],
         condition=IfCondition(gui),
     )

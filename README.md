@@ -1,7 +1,7 @@
 # vmxpi_ros2
 
 
-for testing Diffbot with Gazebo
+for  
 
 ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py use_gazebo_classic:=true gui:=true
 
@@ -11,7 +11,7 @@ To cotrol the robot
 ros2 topic pub --rate 10 /diffbot_base_controller/cmd_vel geometry_msgs/msg/TwistStamped "
 twist:
   linear:
-    x: 0.2
+    x: 0.8
     y: 0.0
     z: 0.0
   angular:
