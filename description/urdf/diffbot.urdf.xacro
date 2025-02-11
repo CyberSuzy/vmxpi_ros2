@@ -3,6 +3,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="diffdrive_robot">
   <xacro:arg name="prefix" default="" />
   <xacro:arg name="use_mock_hardware" default="false" />
+  <xacro:arg name="use_gazebo_classic" default="false" />
 
   <xacro:include filename="$(find ros2_control_demo_description)/diffbot/urdf/diffbot_description.urdf.xacro" />
 
@@ -15,6 +16,15 @@
   <xacro:diffbot prefix="$(arg prefix)" />
 
   <xacro:diffbot_ros2_control
-    name="DiffBot" prefix="$(arg prefix)" use_mock_hardware="$(arg use_mock_hardware)"/>
+    name="DiffBot"
+    prefix="$(arg prefix)"
+    use_mock_hardware="$(arg use_mock_hardware)"
+    use_gazebo_classic="$(arg use_gazebo_classic)"/>
+
+  <xacro:if value="$(arg use_gazebo_classic)">
+    <!-- Import Gazebo Classic definitions + plugin -->
+    <xacro:include filename="$(find vmxpi_ros2)/gazebo/diffbot.gazebo.xacro" />
+    <xacro:diffbot_gazebo prefix="$(arg prefix)"/>
+  </xacro:if>
 
 </robot>

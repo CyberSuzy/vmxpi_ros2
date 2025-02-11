@@ -32,23 +32,33 @@ def generate_launch_description():
             description="Start RViz2 automatically with this launch file.",
         )
     )
-    # declared_arguments.append(
-    #     DeclareLaunchArgument(
-    #         "use_mock_hardware",
-    #         default_value="false",
-    #         description="Start robot with mock hardware mirroring command to its states.",
-    #     )
-    # )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "use_mock_hardware",
+            default_value="false",
+            description="Start robot with mock hardware mirroring command to its states.",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "use_gazebo_classic",
+            default_value="false",
+            description="Start robot with Gazebo Clasic mirroring command to its states.",
+        )
+    )
+
 
     # Initialize Arguments
     gui = LaunchConfiguration("gui")
-    # use_mock_hardware = LaunchConfiguration("use_mock_hardware")
+    use_mock_hardware = LaunchConfiguration("use_mock_hardware")
+    use_gazebo_classic = LaunchConfiguration("use_gazebo_classic")
 
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [PathJoinSubstitution([FindPackageShare("gazebo_ros"), "launch", "gazebo.launch.py"])]
         ),
         launch_arguments={"verbose": "false"}.items(),
+        condition=IfCondition(use_gazebo_classic),
     )
 
     # Get URDF via xacro
@@ -60,7 +70,9 @@ def generate_launch_description():
                 [FindPackageShare("vmxpi_ros2"), "urdf", "diffbot.urdf.xacro"]
             ),
             " ",
-            "use_gazebo_classic:=true",
+            "use_gazebo_classic:=", use_gazebo_classic,  
+            " ",
+            "use_mock_hardware:=", use_mock_hardware,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
