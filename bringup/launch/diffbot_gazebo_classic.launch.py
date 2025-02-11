@@ -59,7 +59,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             [PathJoinSubstitution([FindPackageShare("gazebo_ros"), "launch", "gazebo.launch.py"])]
         ),
-        launch_arguments={"verbose": "false"}.items(),
+        launch_arguments={"verbose": "false", "use_sim_time": use_sim_time}.items(),
         condition=IfCondition(use_gazebo_classic),
     )
 

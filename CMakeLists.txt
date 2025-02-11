@@ -49,7 +49,7 @@ install(
   DESTINATION include/vmxpi_ros2
 )
 install(
-  DIRECTORY description/launch description/ros2_control description/urdf description/gazebo
+  DIRECTORY description/launch description/ros2_control description/urdf description/gazebo description/diffbot
   DESTINATION share/vmxpi_ros2
 )
 install(

@@ -3,7 +3,7 @@
 
 for  
 
-ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py use_gazebo_classic:=true gui:=true
+ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py gui:=true use_gazebo_classic:=true
 
 
 To cotrol the robot
