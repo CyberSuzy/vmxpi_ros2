@@ -80,7 +80,7 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_content, 'use_sim_time': use_sim_time,}
     
     rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare("ros2_control_demo_description"), "diffbot/rviz", "diffbot.rviz"]
+        [FindPackageShare("vmxpi_ros2"), "diffbot/rviz", "diffbot.rviz"]
     )
 
     node_robot_state_publisher = Node(
