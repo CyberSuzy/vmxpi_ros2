@@ -20,68 +20,58 @@ from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
-
 def generate_launch_description():
-
-    # Declare arguments
-    declared_arguments = []
-    declared_arguments.append(
+    declared_arguments = [
         DeclareLaunchArgument(
             "gui",
             default_value="false",
             description="Start RViz2 automatically with this launch file.",
-        )
-    )
-    declared_arguments.append(
+        ),
         DeclareLaunchArgument(
             "use_mock_hardware",
             default_value="false",
             description="Start robot with mock hardware mirroring command to its states.",
-        )
-    )
-    declared_arguments.append(
+        ),
         DeclareLaunchArgument(
             "use_gazebo_classic",
             default_value="false",
-            description="Start robot with Gazebo Clasic mirroring command to its states.",
-        )
-    )
+            description="Start robot with Gazebo Classic mirroring command to its states.",
+        ),
+    ]
 
-
-    # Initialize Arguments
     gui = LaunchConfiguration("gui")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     use_gazebo_classic = LaunchConfiguration("use_gazebo_classic")
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 
+    world_file = PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "gazebo/worlds", "diff_drive_world.world"])
 
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [PathJoinSubstitution([FindPackageShare("gazebo_ros"), "launch", "gazebo.launch.py"])]
         ),
-        launch_arguments={"verbose": "false", "use_sim_time": use_sim_time}.items(),
+        launch_arguments={
+            "verbose": "false",
+            "world": world_file,
+            "use_sim_time": use_sim_time,
+        }.items(),
         condition=IfCondition(use_gazebo_classic),
     )
 
-    # Get URDF via xacro
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
-            PathJoinSubstitution(
-                [FindPackageShare("vmxpi_ros2"), "urdf", "diffbot.urdf.xacro"]
-            ),
+            PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "urdf", "diffbot.urdf.xacro"]),
             " ",
-            "use_gazebo_classic:=", use_gazebo_classic,  
+            "use_gazebo_classic:=", use_gazebo_classic,
             " ",
             "use_mock_hardware:=", use_mock_hardware,
         ]
     )
-    robot_description = {"robot_description": robot_description_content, 'use_sim_time': use_sim_time,}
-    
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare("vmxpi_ros2"), "diffbot/rviz", "diffbot.rviz"]
-    )
+    robot_description = {"robot_description": robot_description_content, "use_sim_time": use_sim_time}
+
+    rviz_config_file = PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "diffbot/rviz", "diffbot.rviz"])
 
     node_robot_state_publisher = Node(
         package="robot_state_publisher",
@@ -94,6 +84,18 @@ def generate_launch_description():
         package="gazebo_ros",
         executable="spawn_entity.py",
         arguments=["-topic", "robot_description", "-entity", "diffbot_system_position"],
+        output="screen",
+        condition=IfCondition(use_gazebo_classic),
+    )
+
+    controller_manager = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        parameters=[
+            robot_description,
+            PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "config", "diffbot_controllers.yaml"]),
+            {"use_sim_time": use_sim_time},
+        ],
         output="screen",
     )
 
@@ -108,12 +110,13 @@ def generate_launch_description():
         executable="spawner",
         arguments=["diffbot_base_controller", "--controller-manager", "/controller_manager"],
     )
+
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
         name="rviz2",
         output="log",
-        parameters=[{'use_sim_time': True}],
+        parameters=[{"use_sim_time": use_sim_time}],
         arguments=["-d", rviz_config_file],
         condition=IfCondition(gui),
     )
@@ -122,6 +125,7 @@ def generate_launch_description():
         gazebo,
         node_robot_state_publisher,
         spawn_entity,
+        controller_manager,
         joint_state_broadcaster_spawner,
         robot_controller_spawner,
         rviz_node,
