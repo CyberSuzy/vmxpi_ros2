@@ -1,5 +1,17 @@
 # vmxpi_ros2
 
+### Dependency
+```bash
+sudo apt install ros-humble-backward-ros
+sudo apt install ros-humble-hardware-interface
+sudo apt install ros-humble-ros2-control
+sudo apt install ros-humble-ros2-controllers
+sudo apt install ros-humble-gazebo-ros
+sudo apt install ros-humble-gazebo-ros2-control
+sudo apt install ros-humble-gazebo-plugins
+sudo apt install ros-humble-xacro
+```
+
 
 for  
 
