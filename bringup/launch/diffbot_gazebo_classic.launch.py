@@ -42,7 +42,8 @@ def generate_launch_description():
     gui = LaunchConfiguration("gui")
     use_hardware = LaunchConfiguration("use_hardware")
     use_gazebo_classic = LaunchConfiguration("use_gazebo_classic")
-    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    use_sim_time = use_gazebo_classic
 
     world_file = PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "gazebo/worlds", "diff_drive_world.world"])
 
