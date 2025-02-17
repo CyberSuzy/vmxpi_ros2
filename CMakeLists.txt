@@ -29,6 +29,7 @@ add_library(
   SHARED
   hardware/rrbot.cpp
   hardware/diffbot_system.cpp
+  hardware/titan.cpp
 )
 target_compile_features(vmxpi_ros2 PUBLIC cxx_std_17)
 target_include_directories(vmxpi_ros2 PUBLIC

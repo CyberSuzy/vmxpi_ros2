@@ -28,7 +28,7 @@ def generate_launch_description():
             description="Start RViz2 automatically with this launch file.",
         ),
         DeclareLaunchArgument(
-            "use_mock_hardware",
+            "use_hardware",
             default_value="false",
             description="Start robot with mock hardware mirroring command to its states.",
         ),
@@ -40,7 +40,7 @@ def generate_launch_description():
     ]
 
     gui = LaunchConfiguration("gui")
-    use_mock_hardware = LaunchConfiguration("use_mock_hardware")
+    use_hardware = LaunchConfiguration("use_hardware")
     use_gazebo_classic = LaunchConfiguration("use_gazebo_classic")
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 
@@ -66,7 +66,7 @@ def generate_launch_description():
             " ",
             "use_gazebo_classic:=", use_gazebo_classic,
             " ",
-            "use_mock_hardware:=", use_mock_hardware,
+            "use_hardware:=", use_hardware,
         ]
     )
     robot_description = {"robot_description": robot_description_content, "use_sim_time": use_sim_time}

@@ -34,7 +34,7 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "use_mock_hardware",
+            "use_hardware",
             default_value="false",
             description="Start robot with mock hardware mirroring command to its states.",
         )
@@ -42,7 +42,7 @@ def generate_launch_description():
 
     # Initialize Arguments
     gui = LaunchConfiguration("gui")
-    use_mock_hardware = LaunchConfiguration("use_mock_hardware")
+    use_hardware = LaunchConfiguration("use_hardware")
 
     # Get URDF via xacro
     robot_description_content = Command(
@@ -53,8 +53,8 @@ def generate_launch_description():
                 [FindPackageShare("vmxpi_ros2"), "urdf", "diffbot.urdf.xacro"]
             ),
             " ",
-            "use_mock_hardware:=",
-            use_mock_hardware,
+            "use_hardware:=",
+            use_hardware,
         ]
     )
     robot_description = {"robot_description": robot_description_content}

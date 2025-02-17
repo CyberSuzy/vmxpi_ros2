@@ -2,7 +2,7 @@
 <!-- Basic differential drive mobile base -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="diffdrive_robot">
   <xacro:arg name="prefix" default="" />
-  <xacro:arg name="use_mock_hardware" default="false" />
+  <xacro:arg name="use_hardware" default="false" />
   <xacro:arg name="use_gazebo_classic" default="false" />
 
   <xacro:include filename="$(find vmxpi_ros2)/diffbot/urdf/diffbot_description.urdf.xacro" />
@@ -18,7 +18,7 @@
   <xacro:diffbot_ros2_control
     name="DiffBot"
     prefix="$(arg prefix)"
-    use_mock_hardware="$(arg use_mock_hardware)"
+    use_hardware="$(arg use_hardware)"
     use_gazebo_classic="$(arg use_gazebo_classic)"/>
 
   <xacro:if value="$(arg use_gazebo_classic)">
