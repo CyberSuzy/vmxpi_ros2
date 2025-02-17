@@ -31,8 +31,7 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
-#include "studica_driver/titan.h"// Include Titan driver header
-
+#include "titan.h"// Include Titan driver header
 
 namespace vmxpi_ros2
 {

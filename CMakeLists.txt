@@ -16,6 +16,14 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rclcpp_lifecycle
 )
 
+include_directories( # <- #include <"">
+  include 
+  /usr/local/include/vmxpi 
+  /usr/local/include/studica_drivers
+  # ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp
+)
+ 
+
 # find dependencies
 find_package(backward_ros REQUIRED)
 find_package(ament_cmake REQUIRED)
@@ -29,7 +37,7 @@ add_library(
   SHARED
   hardware/rrbot.cpp
   hardware/diffbot_system.cpp
-  hardware/titan.cpp
+  hardware/titan_system.cpp
 )
 target_compile_features(vmxpi_ros2 PUBLIC cxx_std_17)
 target_include_directories(vmxpi_ros2 PUBLIC

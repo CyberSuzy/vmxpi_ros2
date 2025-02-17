@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "vmxpi_ros2/titan.hpp"
+#include "vmxpi_ros2/titan_system.hpp"
 
 #include <chrono>
 #include <cmath>
@@ -143,33 +143,33 @@ hardware_interface::CallbackReturn TitanSystemHardware::on_activate(
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  titan.ConfigureEncoder(0, 0.0006830601); //1464 = 1 rotation
-  titan.ConfigureEncoder(1, 0.0006830601);
-  titan.ConfigureEncoder(2, 0.0006830601);
-  titan.ConfigureEncoder(3, 0.0006830601);
+  titan_driver_->ConfigureEncoder(0, 0.0006830601); //1464 = 1 rotation
+  titan_driver_->ConfigureEncoder(1, 0.0006830601);
+  titan_driver_->ConfigureEncoder(2, 0.0006830601);
+  titan_driver_->ConfigureEncoder(3, 0.0006830601);
   
-  titan.ResetEncoder(0);
-  titan.ResetEncoder(1);
-  titan.ResetEncoder(2);
-  titan.ResetEncoder(3);
+  titan_driver_->ResetEncoder(0);
+  titan_driver_->ResetEncoder(1);
+  titan_driver_->ResetEncoder(2);
+  titan_driver_->ResetEncoder(3);
 
     // These are flags to be uncommented as needed
-  // titan.InvertEncoderDirection(0);
-  // titan.InvertEncoderDirection(1);
-  // titan.InvertEncoderDirection(2);
-  // titan.InvertEncoderDirection(3);
+  // titan_driver_->InvertEncoderDirection(0);
+  // titan_driver_->InvertEncoderDirection(1);
+  // titan_driver_->InvertEncoderDirection(2);
+  // titan_driver_->InvertEncoderDirection(3);
 
-  // titan.InvertMotorDirection(0);
-  // titan.InvertMotorDirection(1);
-  // titan.InvertMotorDirection(2);
-  // titan.InvertMotorDirection(3);
+  // titan_driver_->InvertMotorDirection(0);
+  // titan_driver_->InvertMotorDirection(1);
+  // titan_driver_->InvertMotorDirection(2);
+  // titan_driver_->InvertMotorDirection(3);
 
-  // titan.InvertMotorRPM(0);
-  // titan.InvertMotorRPM(1);
-  // titan.InvertMotorRPM(2);
-  // titan.InvertMotorRPM(3);
+  // titan_driver_->InvertMotorRPM(0);
+  // titan_driver_->InvertMotorRPM(1);
+  // titan_driver_->InvertMotorRPM(2);
+  // titan_driver_->InvertMotorRPM(3);
 
-  titan.Enable(true);
+  titan_driver_->Enable(true);
 
   // set some default values
   for (auto i = 0u; i < hw_positions_.size(); i++)
@@ -206,30 +206,51 @@ hardware_interface::return_type TitanSystemHardware::read(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
 {
   if (titan_driver_) {
+    double period_seconds = period.seconds(); // Get the time in seconds since last read
 
-    for (std::size_t i = 0; i < hw_velocities_.size(); i++) // Loop through joints
-    {
-      // For wheel_left_joint (motor 0), wheel_right_joint (motor 1) - **VERIFY JOINT-MOTOR MAPPING**
-      if (i == 0) { // Assuming joint index 0 is left wheel, motor 0
-          hw_positions_[i] = static_cast<double>(titan_driver_->GetEncoderCount(0)); // Raw encoder counts as position
-          hw_velocities_[i] = static_cast<double>(titan_driver_->GetRPM(0)); // RPM as velocity
-      } else if (i == 1) { // Assuming joint index 1 is right wheel, motor 1
-          hw_positions_[i] = static_cast<double>(titan_driver_->GetEncoderCount(1)); // Raw encoder counts as position
-          hw_velocities_[i] = static_cast<double>(titan_driver_->GetRPM(1)); // RPM as velocity
-      } else { // Handle cases if you have more joints - maybe log a warning or error if unexpected
-          RCLCPP_WARN(get_logger(), "Unexpected joint index %zu in read() - Assuming only 2 wheels for now.", i);
-      }
-    }
-    // RCLCPP_INFO(rclcpp::get_logger("MyRobotHardware"), "%s", ss_read.str().c_str()); // Use RCLCPP_DEBUG or RCLCPP_INFO_THROTTLE for less verbose output
-    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000, "Encoder Counts: Left: %f, Right: %f, RPM: Left: %f, Right: %f", // Less verbose logging
-                        hw_positions_[0], hw_positions_[1],
-                        hw_velocities_[0], hw_velocities_[1]);
+    static int32_t last_encoder_count_left = 0;  // Static variables to store previous encoder counts
+    static int32_t last_encoder_count_right = 0;
+
+    int32_t current_encoder_count_left = titan_driver_->GetEncoderCount(0);
+    int32_t current_encoder_count_right = titan_driver_->GetEncoderCount(1);
+
+    // --- Velocity Calculation (based on encoder count difference over time) ---
+    // ** IMPORTANT: You will likely need to adjust the scaling factor! **
+    double encoder_ticks_per_revolution = 1464.0; // Example: Adjust to your encoder's ticks per revolution
+    double wheel_circumference = 0.2073; // Example: Wheel circumference in meters (adjust to your robot)
+
+    double delta_encoder_count_left = current_encoder_count_left - last_encoder_count_left;
+    double delta_encoder_count_right = current_encoder_count_right - last_encoder_count_right;
+
+    // Calculate distance traveled by each wheel in meters since last read:
+    double distance_left = (delta_encoder_count_left / encoder_ticks_per_revolution) * wheel_circumference;
+    double distance_right = (delta_encoder_count_right / encoder_ticks_per_revolution) * wheel_circumference;
+
+    // Calculate velocity in meters per second:
+    hw_velocities_[0] = distance_left / period_seconds;  // Left wheel velocity (m/s)
+    hw_velocities_[1] = distance_right / period_seconds; // Right wheel velocity (m/s)
+
+    // --- Position Update (still using raw encoder counts for position state) ---
+    hw_positions_[0] = static_cast<double>(current_encoder_count_left); // Raw encoder counts as position (for state)
+    hw_positions_[1] = static_cast<double>(current_encoder_count_right);
+
+    // --- RPM Reading (still keeping RPM reading for velocity state - you can choose either velocity calculation OR RPM) ---
+    // If you want to use calculated velocity from encoder counts as the primary velocity state, you might remove or comment out these RPM readings.
+    // If you want to keep RPM as a separate velocity state, leave these lines in.
+    // hw_velocities_[0] = static_cast<double>(titan_driver_->GetRPM(0)); // RPM as velocity (you could comment this out if using calculated velocity)
+    // hw_velocities_[1] = static_cast<double>(titan_driver_->GetRPM(1)); // RPM as velocity (you could comment this out if using calculated velocity)
+
+
+    // --- Update 'last' encoder counts for the next read cycle ---
+    last_encoder_count_left = current_encoder_count_left;
+    last_encoder_count_right = current_encoder_count_right;
+
 
   } else {
-      RCLCPP_ERROR(get_logger(), "Titan driver is not initialized in read()!"); // Important error log
-      return hardware_interface::return_type::ERROR; // Return error to signal issue
+    RCLCPP_ERROR(get_logger(), "Titan driver is not initialized in read()!");
+    return hardware_interface::return_type::ERROR;
   }
-return hardware_interface::return_type::OK;
+  return hardware_interface::return_type::OK;
 }
 
 hardware_interface::return_type vmxpi_ros2 ::TitanSystemHardware::write(
