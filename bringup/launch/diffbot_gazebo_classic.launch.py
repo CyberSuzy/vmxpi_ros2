@@ -19,6 +19,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from launch.conditions import UnlessCondition
 
 def generate_launch_description():
     declared_arguments = [
@@ -42,9 +43,8 @@ def generate_launch_description():
     gui = LaunchConfiguration("gui")
     use_hardware = LaunchConfiguration("use_hardware")
     use_gazebo_classic = LaunchConfiguration("use_gazebo_classic")
-    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
-    use_sim_time = use_gazebo_classic
-
+    use_sim_time = LaunchConfiguration('use_sim_time', default='false') # Default to false for hardware
+ 
     world_file = PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "gazebo/worlds", "diff_drive_world.world"])
 
     gazebo = IncludeLaunchDescription(
@@ -54,10 +54,11 @@ def generate_launch_description():
         launch_arguments={
             "verbose": "false",
             "world": world_file,
-            "use_sim_time": use_sim_time,
+            "use_sim_time": LaunchConfiguration('use_sim_time', default='true'), # Explicitly set to true for Gazebo
         }.items(),
         condition=IfCondition(use_gazebo_classic),
     )
+
 
     robot_description_content = Command(
         [
@@ -70,9 +71,13 @@ def generate_launch_description():
             "use_hardware:=", use_hardware,
         ]
     )
-    robot_description = {"robot_description": robot_description_content, "use_sim_time": use_sim_time}
+    robot_description = {"robot_description": robot_description_content, "use_sim_time": use_sim_time} 
 
     rviz_config_file = PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "diffbot/rviz", "diffbot.rviz"])
+          
+    robot_controllers = PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "config", "diffbot_controllers.yaml"])
+
+    
 
     node_robot_state_publisher = Node(
         package="robot_state_publisher",
@@ -89,16 +94,16 @@ def generate_launch_description():
         condition=IfCondition(use_gazebo_classic),
     )
 
-    controller_manager = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[
-            robot_description,
-            PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "config", "diffbot_controllers.yaml"]),
-            {"use_sim_time": use_sim_time},
-        ],
-        output="screen",
-    )
+    # controller_manager = Node(
+    #     package="controller_manager",
+    #     executable="ros2_control_node",
+    #     parameters=[
+    #         robot_description,
+    #         PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "config", "diffbot_controllers.yaml"]),
+    #         {"use_sim_time": use_sim_time},
+    #     ],
+    #     output="screen",
+    # )
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
@@ -122,14 +127,25 @@ def generate_launch_description():
         condition=IfCondition(gui),
     )
 
+    control_node = Node(
+    package='controller_manager', # Or the correct package name for your control_node executable
+    executable='ros2_control_node', # Or the correct executable name
+    namespace='',
+    parameters=[robot_description, robot_controllers], # robot_controllers is your PathJoinSubstitution to the YAML file
+    output='screen',
+    condition=UnlessCondition(use_gazebo_classic) # Launch only when not using Gazebo Classic
+)
+
+
     nodes = [
         gazebo,
+        control_node,
         node_robot_state_publisher,
         spawn_entity,
-        controller_manager,
+        # controller_manager,
         joint_state_broadcaster_spawner,
         robot_controller_spawner,
-        rviz_node,
+        rviz_node
     ]
 
     return LaunchDescription(declared_arguments + nodes)

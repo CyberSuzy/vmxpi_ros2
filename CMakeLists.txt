@@ -39,6 +39,12 @@ add_library(
   hardware/diffbot_system.cpp
   hardware/titan_system.cpp
 )
+
+target_link_libraries(vmxpi_ros2
+  PUBLIC
+  /usr/local/lib/libstudica_drivers.so
+)
+
 target_compile_features(vmxpi_ros2 PUBLIC cxx_std_17)
 target_include_directories(vmxpi_ros2 PUBLIC
 $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/hardware/include>

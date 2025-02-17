@@ -18,6 +18,15 @@ for
 ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py gui:=true use_gazebo_classic:=true
 
 
+in VMX 
+```bash
+cd ~/ros_ws
+sudo su 
+source /opt/ros/humble/setup.bash
+source install/setup.bash 
+ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py use_hardware:=true
+```
+
 To cotrol the robot
 
 ros2 topic pub --rate 10 /diffbot_base_controller/cmd_vel geometry_msgs/msg/TwistStamped "
