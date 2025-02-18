@@ -1,6 +1,14 @@
 # vmxpi_ros2
+## Overview
 
-### Dependency
+This package provides ROS 2 support for the VMX-pi hardware. It includes launch files and configurations for both simulated and real robots.
+
+## Installation
+
+### Dependencies
+
+Install the necessary ROS 2 packages:
+
 ```bash
 sudo apt install ros-humble-backward-ros
 sudo apt install ros-humble-hardware-interface
@@ -12,24 +20,49 @@ sudo apt install ros-humble-gazebo-plugins
 sudo apt install ros-humble-xacro
 ```
 
+### Build
 
-for  
+Build the package and source the setup file:
 
+```bash
+colcon build --packages-select vmxpi_ros2 && . install/setup.bash
+```
+
+## Usage
+
+### Simulation
+
+To launch the simulation with Gazebo:
+
+```bash
 ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py gui:=true use_gazebo_classic:=true
+```
 
+### Real Robot
 
-in VMX 
+To launch the real robot:
+
+```bash
+ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py use_hardware:=true
+```
+
+### VMX Setup
+
+For VMX setup, switch to the root user and source the necessary files:
+
 ```bash
 sudo su 
 source /home/vmx/.bashrc 
 ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py use_hardware:=true
 ```
 
-update source file for root user
+Update the source file for the root user:
+
 ```bash
 cp /etc/skel/.bash* ~
 ```
-add the following lines in .profile
+
+Add the following lines to `.profile`:
 
 ```bash
 sudo su
@@ -41,8 +74,13 @@ ros2 daemon stop
 ros2 daemon start
 ```
 
-To cotrol the robot
+## Controlling the Robot
 
+### Publish Commands
+
+To control the robot using ROS 2 topics:
+
+```bash
 ros2 topic pub --rate 10 /diffbot_base_controller/cmd_vel geometry_msgs/msg/TwistStamped "
 twist:
   linear:
@@ -53,18 +91,48 @@ twist:
     x: 0.0
     y: 0.0
     z: 0.5"
+```
 
+Or:
 
+```bash
 ros2 topic pub /diffbot_base_controller/cmd_vel geometry_msgs/msg/TwistStamped '{header: {stamp: {sec: 0, nanosec: 0}, frame_id: "base_link"}, twist: {linear: {x: 0.01, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}}' -r 10
+```
 
+### Teleoperation
 
+To control the robot using the keyboard:
 
+```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=True --remap cmd_vel:=/diffbot_base_controller/cmd_vel
+```
 
-Depug 
+## Debugging
 
+### Topics
+
+To echo the command velocity topic:
+
+```bash
 ros2 topic echo /diffbot_base_controller/cmd_vel geometry_msgs/msg/TwistStamped
+```
 
+To echo the joint states topic:
+
+```bash
 ros2 topic echo /joint_states
+```
 
+To get information about the command velocity topic:
+
+```bash
 ros2 topic info -v /diffbot_base_controller/cmd_vel
+```
+
+### TF Frames
+
+To view the TF frames:
+
+```bash
+ros2 run tf2_tools view_frames
+```
