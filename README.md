@@ -32,7 +32,7 @@ To cotrol the robot
 ros2 topic pub --rate 10 /diffbot_base_controller/cmd_vel geometry_msgs/msg/TwistStamped "
 twist:
   linear:
-    x: 0.8
+    x: 0.5
     y: 0.0
     z: 0.0
   angular:
@@ -49,3 +49,5 @@ Depug
 ros2 topic echo /diffbot_base_controller/cmd_vel geometry_msgs/msg/TwistStamped
 
 ros2 topic echo /joint_states
+
+ros2 topic info -v /diffbot_base_controller/cmd_vel

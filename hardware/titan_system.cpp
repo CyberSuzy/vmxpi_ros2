@@ -171,6 +171,9 @@ hardware_interface::CallbackReturn TitanSystemHardware::on_activate(
 
   titan_driver_->Enable(true);
 
+  //Test motor
+  titan_driver_->SetSpeed(0, 0.2);
+
   // set some default values
   for (auto i = 0u; i < hw_positions_.size(); i++)
   {
@@ -182,7 +185,7 @@ hardware_interface::CallbackReturn TitanSystemHardware::on_activate(
     }
   }
 
-  RCLCPP_INFO(get_logger(), "Successfully activated!");
+  RCLCPP_INFO(get_logger(), "Titan Successfully activated!");
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -197,7 +200,7 @@ hardware_interface::CallbackReturn TitanSystemHardware::on_deactivate(
     RCLCPP_WARN(get_logger(), "Titan driver is not initialized in on_deactivate, nothing to disable.");
   }
 
-  RCLCPP_INFO(get_logger(), "Successfully deactivated!");
+  RCLCPP_INFO(get_logger(), "Titan Successfully deactivated!");
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -240,10 +243,12 @@ hardware_interface::return_type TitanSystemHardware::read(
     // hw_velocities_[0] = static_cast<double>(titan_driver_->GetRPM(0)); // RPM as velocity (you could comment this out if using calculated velocity)
     // hw_velocities_[1] = static_cast<double>(titan_driver_->GetRPM(1)); // RPM as velocity (you could comment this out if using calculated velocity)
 
-
     // --- Update 'last' encoder counts for the next read cycle ---
     last_encoder_count_left = current_encoder_count_left;
     last_encoder_count_right = current_encoder_count_right;
+
+    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000, "Motor positions: Left: %f, Right: %f", // Less verbose logging
+    hw_positions_[0], hw_positions_[1]);
 
 
   } else {
@@ -257,17 +262,26 @@ hardware_interface::return_type vmxpi_ros2 ::TitanSystemHardware::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   if (titan_driver_) {
-    for (std::size_t i = 0; i < hw_commands_.size(); i++)
-    {
-      // For wheel_left_joint (motor 0), wheel_right_joint (motor 1) - **VERIFY JOINT-MOTOR MAPPING**
-      if (i == 0) { // Assuming joint index 0 is left wheel, motor 0
-          titan_driver_->SetSpeed(0, hw_commands_[i]); // Send commanded velocity to motor 0
-      } else if (i == 1) { // Assuming joint index 1 is right wheel, motor 1
-          titan_driver_->SetSpeed(1, hw_commands_[i]); // Send commanded velocity to motor 1
-      } else { // Handle cases if you have more joints - maybe log a warning or error if unexpected
-          RCLCPP_WARN(get_logger(), "Unexpected joint index %zu in write() - Assuming only 2 wheels for now.", i);
-      }
-    }
+
+    // titan_driver_->SetSpeed(0, 0.2); // Send commanded velocity to motor 0
+    // titan_driver_->SetSpeed(1, 0.2); // Send commanded velocity to motor 1
+
+    titan_driver_->SetSpeed(0, hw_commands_[0]); // Send commanded velocity to motor 0
+    titan_driver_->SetSpeed(1, hw_commands_[1]); // Send commanded velocity to motor 1
+
+
+
+    // for (std::size_t i = 0; i < hw_commands_.size(); i++)
+    // {
+    //   // For wheel_left_joint (motor 0), wheel_right_joint (motor 1) - **VERIFY JOINT-MOTOR MAPPING**
+    //   if (i == 0) { // Assuming joint index 0 is left wheel, motor 0
+    //       titan_driver_->SetSpeed(0, hw_commands_[i]); // Send commanded velocity to motor 0
+    //   } else if (i == 1) { // Assuming joint index 1 is right wheel, motor 1
+    //       titan_driver_->SetSpeed(1, hw_commands_[i]); // Send commanded velocity to motor 1
+    //   } else { // Handle cases if you have more joints - maybe log a warning or error if unexpected
+    //       RCLCPP_WARN(get_logger(), "Unexpected joint index %zu in write() - Assuming only 2 wheels for now.", i);
+    //   }
+    // }
     // RCLCPP_INFO(rclcpp::get_logger("MyRobotHardware"), "%s", ss_write.str().c_str()); // Use RCLCPP_DEBUG or RCLCPP_INFO_THROTTLE
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000, "Motor Speeds: Left: %f, Right: %f", // Less verbose logging
                          hw_commands_[0], hw_commands_[1]);

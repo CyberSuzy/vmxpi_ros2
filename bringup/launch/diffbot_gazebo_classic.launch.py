@@ -128,13 +128,13 @@ def generate_launch_description():
     )
 
     control_node = Node(
-    package='controller_manager', # Or the correct package name for your control_node executable
-    executable='ros2_control_node', # Or the correct executable name
-    namespace='',
-    parameters=[robot_description, robot_controllers], # robot_controllers is your PathJoinSubstitution to the YAML file
-    output='screen',
-    condition=UnlessCondition(use_gazebo_classic) # Launch only when not using Gazebo Classic
-)
+        package='controller_manager', # Or the correct package name for your control_node executable
+        executable='ros2_control_node', # Or the correct executable name
+        namespace='',
+        parameters=[robot_description, robot_controllers], # robot_controllers is your PathJoinSubstitution to the YAML file
+        output='screen',
+        condition=UnlessCondition(use_gazebo_classic) # Launch only when not using Gazebo Classic
+    )
 
 
     nodes = [
