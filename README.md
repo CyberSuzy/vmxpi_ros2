@@ -22,11 +22,20 @@ in VMX
 ```bash
 cd ~/ros_ws
 sudo su 
+ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py use_hardware:=true
+```
+
+update source file for root user
+```bash
+cp /etc/skel/.bash* ~
+```
+add the following lines in .profile
+
+```bash
 source /opt/ros/humble/setup.bash
+source /home/vmx/ros2_ws/install/setup.bash
 export ROS_DOMAIN_ID=1
 export ROS_LOCALHOST_ONLY=0
-source install/setup.bash 
-ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py use_hardware:=true
 ```
 
 To cotrol the robot
