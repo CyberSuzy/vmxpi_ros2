@@ -20,8 +20,8 @@ ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py gui:=true use_gazebo_cla
 
 in VMX 
 ```bash
-cd ~/ros_ws
 sudo su 
+source /home/vmx/.bashrc 
 ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py use_hardware:=true
 ```
 
@@ -32,10 +32,13 @@ cp /etc/skel/.bash* ~
 add the following lines in .profile
 
 ```bash
+sudo su
 source /opt/ros/humble/setup.bash
 source /home/vmx/ros2_ws/install/setup.bash
 export ROS_DOMAIN_ID=1
 export ROS_LOCALHOST_ONLY=0
+ros2 daemon stop
+ros2 daemon start
 ```
 
 To cotrol the robot
@@ -50,6 +53,9 @@ twist:
     x: 0.0
     y: 0.0
     z: 0.5"
+
+
+ros2 topic pub /diffbot_base_controller/cmd_vel geometry_msgs/msg/TwistStamped '{header: {stamp: {sec: 0, nanosec: 0}, frame_id: "base_link"}, twist: {linear: {x: 0.01, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}}' -r 10
 
 
 
