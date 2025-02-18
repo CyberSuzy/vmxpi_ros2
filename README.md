@@ -23,6 +23,8 @@ in VMX
 cd ~/ros_ws
 sudo su 
 source /opt/ros/humble/setup.bash
+export ROS_DOMAIN_ID=1
+export ROS_LOCALHOST_ONLY=0
 source install/setup.bash 
 ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py use_hardware:=true
 ```
