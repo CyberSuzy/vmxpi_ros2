@@ -171,9 +171,6 @@ hardware_interface::CallbackReturn TitanSystemHardware::on_activate(
 
   titan_driver_->Enable(true);
 
-  //Test motor
-  titan_driver_->SetSpeed(0, 0.2);
-
   // set some default values
   for (auto i = 0u; i < hw_positions_.size(); i++)
   {
@@ -220,7 +217,7 @@ hardware_interface::return_type TitanSystemHardware::read(
     // --- Velocity Calculation (based on encoder count difference over time) ---
     // ** IMPORTANT: You will likely need to adjust the scaling factor! **
     double encoder_ticks_per_revolution = 1464.0; // Example: Adjust to your encoder's ticks per revolution
-    double wheel_circumference = 0.2073; // Example: Wheel circumference in meters (adjust to your robot)
+    double wheel_circumference = 0.1; // Example: Wheel circumference in meters (adjust to your robot)
 
     double delta_encoder_count_left = current_encoder_count_left - last_encoder_count_left;
     double delta_encoder_count_right = current_encoder_count_right - last_encoder_count_right;
@@ -263,13 +260,16 @@ hardware_interface::return_type vmxpi_ros2 ::TitanSystemHardware::write(
 {
   if (titan_driver_) {
 
-    // titan_driver_->SetSpeed(0, 0.2); // Send commanded velocity to motor 0
-    // titan_driver_->SetSpeed(1, 0.2); // Send commanded velocity to motor 1
+    for (std::size_t i = 0; i < hw_commands_.size(); i++)
+    {
+      double command_velocity = hw_commands_[i]; 
 
-    titan_driver_->SetSpeed(0, hw_commands_[0]); // Send commanded velocity to motor 0
-    titan_driver_->SetSpeed(1, hw_commands_[1]); // Send commanded velocity to motor 1
+      double speedCfg = command_velocity * 0.05; // <--- **ADD SCALING FACTOR HERE!** (Example: No scaling factor for now - adjust as needed)
+      // If Titan::SetSpeed expects percentage (0-100), and hw_commands_ is in range 0-1.0 m/s, you might use:
+      // double speedCfg = command_velocity * 100.0; // Example: Scale to percentage (0-100)
 
-
+      titan_driver_->SetSpeed(i, speedCfg); 
+    } 
 
     // for (std::size_t i = 0; i < hw_commands_.size(); i++)
     // {
