@@ -136,3 +136,12 @@ To view the TF frames:
 ```bash
 ros2 run tf2_tools view_frames
 ```
+
+- If the robots do not spawn in Gazebo, run:
+
+```bash
+gazebo --verbose
+
+gazebo -s libgazebo_ros_init.so -s libgazebo_ros_factory.so myworld.world
+
+```
