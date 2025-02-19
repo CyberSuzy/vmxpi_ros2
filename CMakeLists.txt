@@ -16,13 +16,41 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rclcpp_lifecycle
 )
 
-include_directories( # <- #include <"">
-  include 
-  /usr/local/include/vmxpi 
-  /usr/local/include/studica_drivers
-  # ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp
-)
- 
+# Find VMXPi library and headers (CONDITIONAL)
+find_library(VMXPI_LIBRARY
+  NAMES libstudica_drivers.so # Check for libstudica_drivers.so
+  PATHS /usr/local/lib
+        /usr/local/lib/studica_drivers # Adjust path if needed
+  )
+
+find_path(VMXPI_INCLUDE_DIR
+  NAMES titan.h # Check for a header file from studica_drivers
+  PATHS /usr/local/include
+        /usr/local/include/studica_drivers # Adjust path if needed
+  )
+
+# Check if VMXPI library and headers were found
+if(VMXPI_LIBRARY AND VMXPI_INCLUDE_DIR)
+  message(STATUS "VMXPi library and headers FOUND: Using hardware interface.")
+  set(VMXPI_FOUND TRUE)
+  set(VMXPI_LIBRARIES ${VMXPI_LIBRARY})
+  set(VMXPI_INCLUDE_DIRS ${VMXPI_INCLUDE_DIR})
+else()
+  message(WARNING "VMXPi library and headers NOT FOUND: Building without hardware interface support.")
+  set(VMXPI_FOUND FALSE)
+  set(VMXPI_LIBRARIES "")
+  set(VMXPI_INCLUDE_DIRS "")
+endif()
+
+if(VMXPI_FOUND)
+  include_directories( # <- #include <"">
+    include
+    ${VMXPI_INCLUDE_DIRS} # Include VMXPi headers if found
+  )
+else()
+  include_directories(include) # Still include 'include' directory for package's own headers
+endif()
+
 
 # find dependencies
 find_package(backward_ros REQUIRED)
@@ -37,13 +65,26 @@ add_library(
   SHARED
   hardware/rrbot.cpp
   hardware/diffbot_system.cpp
-  hardware/titan_system.cpp
+  # Conditionally include hardware-specific source files
+  ${${PROJECT_NAME}_HARDWARE_SOURCES}
 )
 
-target_link_libraries(vmxpi_ros2
-  PUBLIC
-  /usr/local/lib/libstudica_drivers.so
-)
+# Conditionally link and compile hardware interface code
+if(VMXPI_FOUND)
+  target_sources(vmxpi_ros2
+    PRIVATE
+      hardware/titan_system.cpp # Include titan_system.cpp only if VMXPI_FOUND
+  )
+  target_link_libraries(vmxpi_ros2
+    PUBLIC
+      ${VMXPI_LIBRARIES} # Link against VMXPi library if found
+  )
+else()
+  message(WARNING "Skipping compilation and linking of hardware interface code.")
+  # Optionally, you could add a dummy/mock hardware interface source file here
+  # target_sources(vmxpi_ros2 PRIVATE src/mock_hardware_interface.cpp)
+endif()
+
 
 target_compile_features(vmxpi_ros2 PUBLIC cxx_std_17)
 target_include_directories(vmxpi_ros2 PUBLIC
@@ -64,7 +105,7 @@ install(
   DESTINATION include/vmxpi_ros2
 )
 install(
-  DIRECTORY description/launch description/ros2_control description/urdf description/gazebo description/diffbot
+  DIRECTORY description/launch description/ros2_control description/urdf description/gazebo description/diffbot description/meshes
   DESTINATION share/vmxpi_ros2
 )
 install(

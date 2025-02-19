@@ -16,8 +16,12 @@
   <xacro:property name="caster_wheel_radius" value="0.05" />
   <xacro:property name="z_offset" value="-${base_height/2}" /> <!-- Space btw top of beam and the each joint -->
 
-  <!-- Base Link -->
+  
   <link name="${prefix}base_link">
+  </link>  
+  
+  <!-- Base Link -->
+  <link name="${prefix}chassis_link">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -43,8 +47,14 @@
       </inertial>
     </link>
 
+    <joint name="${prefix}base_link_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}chassis_link" />
+    </joint>
+
     <joint name="${prefix}left_wheel_joint" type="continuous">
-      <parent link="${prefix}base_link"/>
+      <parent link="${prefix}chassis_link"/>
       <child link="${prefix}left_wheel"/>
       <origin xyz="0 ${base_width/2} ${z_offset}" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
@@ -80,7 +90,7 @@
       </link>
 
     <joint name="${prefix}right_wheel_joint" type="continuous">
-      <parent link="${prefix}base_link"/>
+      <parent link="${prefix}chassis_link"/>
       <child link="${prefix}right_wheel"/>
       <origin xyz="0 -${base_width/2} ${z_offset}" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
@@ -116,7 +126,7 @@
       </link>
 
     <joint name="${prefix}caster_frontal_wheel_joint" type="continuous">
-      <parent link="${prefix}base_link"/>
+      <parent link="${prefix}chassis_link"/>
       <child link="${prefix}caster_frontal_wheel"/>
       <origin xyz="${base_width/2 - caster_wheel_radius} 0 ${z_offset}" rpy="0 0 0"/>
     </joint>
@@ -149,7 +159,7 @@
       </link>
 
     <joint name="${prefix}caster_rear_wheel_joint" type="continuous">
-      <parent link="${prefix}base_link"/>
+      <parent link="${prefix}chassis_link"/>
       <child link="${prefix}caster_rear_wheel"/>
       <origin xyz="${-base_width/2 + caster_wheel_radius} 0 ${z_offset}" rpy="0 0 0"/>
     </joint>
@@ -180,6 +190,45 @@
           izz="${caster_wheel_mass * 0.4 * (caster_wheel_radius * caster_wheel_radius)}"/>
         </inertial>
       </link>
+
+      <!-- <link name="${prefix}laser_model_link">
+        <visual>
+          <origin rpy="0 0 0" xyz="0 0 0"/>
+          <geometry>
+            <mesh filename="package://vmxpi_ros2/meshes/sensors/hokuyo_urg_04lx.dae" scale="1.0 1.0 1.0"/>
+          </geometry>
+        </visual>
+
+        <collision>
+          <origin rpy="0 0 0" xyz="0 0 0"/>
+          <geometry>
+            <mesh filename="package://vmxpi_ros2/meshes/sensors/hokuyo_urg_04lx.dae" scale="1.0 1.0 1.0"/>
+          </geometry>
+        </collision>
+
+        <inertial>
+          <mass value="0.01"/>
+          <origin rpy="0 0 0" xyz="0 0 0"/>
+          <inertia ixx="6.066578520833334e-06" ixy="0" ixz="0" iyy="6.072950163333333e-06" iyz="0" izz="9.365128684166666e-06"/>
+        </inertial>
+      </link>
+
+      <joint name="${prefix}laser_scan_model_link_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0.0 0.0 ${base_height}"/>
+        <parent link="${prefix}chassis_link"/>
+        <child link="${prefix}laser_model_link"/>
+        <axis xyz="0 0 0"/>
+      </joint>
+
+      <link name="${prefix}laser_scan_frame">
+        <origin rpy="0 0 0" xyz="0 0 ${base_height}"/>
+      </link>
+
+      <joint name="${prefix}laser_scan_frame_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0.05"/>
+        <parent link="${prefix}laser_model_link"/>
+        <child link="${prefix}laser_scan_frame"/>
+      </joint> -->
 
   </xacro:macro>
 
