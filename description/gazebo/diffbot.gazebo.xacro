@@ -85,7 +85,7 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
       <material>Gazebo/White</material>
     </gazebo>
 
-    <!-- <gazebo reference="${prefix}laser_scan_frame">
+    <gazebo reference="${prefix}laser_scan_frame">
       <sensor name="sensor_ray" type="ray">
           <pose>0 0 0 0 0 0</pose>
           <ray>
@@ -113,6 +113,6 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
             <output_type>sensor_msgs/LaserScan</output_type>
           </plugin>
       </sensor>
-    </gazebo> -->
+    </gazebo>
   </xacro:macro>
 </robot>
