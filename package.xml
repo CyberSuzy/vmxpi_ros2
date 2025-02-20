@@ -24,6 +24,7 @@
   <depend>joint_state_broadcaster</depend>
   <depend>joint_trajectory_controller</depend>
   <depend>velocity_controllers</depend>
+  <depend>gazebo_ros</depend>
 
 
 
@@ -35,7 +36,6 @@
 
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>forward_command_controller</exec_depend>
-  <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>joint_state_publisher_gui</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>ros2_control_demo_description</exec_depend>

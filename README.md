@@ -37,7 +37,7 @@ To launch the simulation with Gazebo:
 ```bash
 ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py gui:=true use_gazebo_classic:=true
 ```
-
+meshes
 ### Real Robot
 
 To launch the real robot:
@@ -142,6 +142,10 @@ ros2 run tf2_tools view_frames
 ```bash
 gazebo --verbose
 
-gazebo -s libgazebo_ros_init.so -s libgazebo_ros_factory.so myworld.world
+gazebo -s libgazebo_ros_init.so -s libgazebo_ros_factory.so
+
+export GAZEBO_RESOURCE_PATH=$GAZEBO_RESOURCE_PATH:/home/mohammadrobot/ros2_ws/install/vmxpi_ros2/share/vmxpi_ros2
+
 
 ```
+

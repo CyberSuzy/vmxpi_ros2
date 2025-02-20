@@ -17,7 +17,7 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
     <!-- Joint State Publisher Plugin -->
     <gazebo>
       <plugin name="gazebo_joint_state_broadcaster" filename="libgazebo_ros_joint_state_publisher.so">
-        <update_rate>10</update_rate>  <!-- Adjust the rate as needed -->
+        <update_rate>100</update_rate>  <!-- Adjust the rate as needed -->
         <!-- <joint_name>${prefix}base_link_joint</joint_name> -->
         <!-- <joint_name>${prefix}right_wheel_joint</joint_name> -->
         <!-- <joint_name>${prefix}left_wheel_joint</joint_name> -->
