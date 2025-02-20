@@ -21,12 +21,14 @@ find_library(VMXPI_LIBRARY
   NAMES libstudica_drivers.so # Check for libstudica_drivers.so
   PATHS /usr/local/lib
         /usr/local/lib/studica_drivers # Adjust path if needed
+        /usr/local/lib/vmxpi
   )
 
 find_path(VMXPI_INCLUDE_DIR
   NAMES titan.h # Check for a header file from studica_drivers
   PATHS /usr/local/include
         /usr/local/include/studica_drivers # Adjust path if needed
+        /usr/local/include/vmxpi
   )
 
 # Check if VMXPI library and headers were found
