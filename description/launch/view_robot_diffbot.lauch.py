@@ -69,7 +69,7 @@ def generate_launch_description():
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare("vmxpi_ros2"), "urdf", description_file]
+                [FindPackageShare("vmxpi_ros2"), "description/urdf", description_file]
             ),
             " ",
             "prefix:=",
@@ -79,7 +79,7 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_content}
 
     rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare(description_package), "diffbot/rviz", "diffbot_view.rviz"]
+        [FindPackageShare(description_package), "description/description/description/description/description/description/diffbot/rviz", "diffbot_view.rviz"]
     )
 
     joint_state_publisher_node = Node(

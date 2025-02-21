@@ -50,7 +50,7 @@ def generate_launch_description():
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare("vmxpi_ros2"), "urdf", "diffbot.urdf.xacro"]
+                [FindPackageShare("vmxpi_ros2"), "description/urdf", "diffbot.urdf.xacro"]
             ),
             " ",
             "use_hardware:=",
@@ -67,7 +67,7 @@ def generate_launch_description():
         ]
     )
     rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare("ros2_control_demo_description"), "diffbot/rviz", "diffbot.rviz"]
+        [FindPackageShare("ros2_control_demo_description"), "description/diffbot/rviz", "diffbot.rviz"]
     )
 
     control_node = Node(

@@ -5,13 +5,13 @@
   <xacro:arg name="use_hardware" default="false" />
   <xacro:arg name="use_gazebo_classic" default="false" />
 
-  <xacro:include filename="$(find vmxpi_ros2)/diffbot/urdf/diffbot_description.urdf.xacro" />
+  <xacro:include filename="$(find vmxpi_ros2)/description/diffbot/urdf/diffbot_description.urdf.xacro" />
 
   <!-- Import Rviz colors -->
-  <xacro:include filename="$(find vmxpi_ros2)/diffbot/urdf/diffbot.materials.xacro" />
+  <xacro:include filename="$(find vmxpi_ros2)/description/diffbot/urdf/diffbot.materials.xacro" />
 
   <!-- Import diffbot ros2_control description -->
-  <xacro:include filename="$(find vmxpi_ros2)/ros2_control/diffbot.ros2_control.xacro" />
+  <xacro:include filename="$(find vmxpi_ros2)/description/ros2_control/diffbot.ros2_control.xacro" />
 
   <xacro:diffbot prefix="$(arg prefix)" />
 
@@ -23,7 +23,7 @@
 
   <xacro:if value="$(arg use_gazebo_classic)">
     <!-- Import Gazebo Classic definitions + plugin -->
-    <xacro:include filename="$(find vmxpi_ros2)/gazebo/diffbot.gazebo.xacro" />
+    <xacro:include filename="$(find vmxpi_ros2)/description/gazebo/diffbot.gazebo.xacro" />
     <xacro:diffbot_gazebo prefix="$(arg prefix)"/>
   </xacro:if>
 

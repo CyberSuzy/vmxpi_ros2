@@ -120,7 +120,7 @@ install(
   DESTINATION include/vmxpi_ros2
 )
 install(
-  DIRECTORY description/launch description/ros2_control description/urdf description/gazebo description/diffbot description/meshes
+  DIRECTORY description  
   DESTINATION share/vmxpi_ros2
 )
 install(

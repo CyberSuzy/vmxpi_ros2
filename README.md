@@ -144,8 +144,7 @@ gazebo --verbose
 
 gazebo -s libgazebo_ros_init.so -s libgazebo_ros_factory.so
 
-export GAZEBO_RESOURCE_PATH=$GAZEBO_RESOURCE_PATH:/home/mohammadrobot/ros2_ws/install/vmxpi_ros2/share/vmxpi_ros2
-
-
 ```
+Add to .bashrc 
 
+chmod 0700 /run/user/1000 
