@@ -46,7 +46,9 @@ endif()
 if(VMXPI_FOUND)
   include_directories( # <- #include <"">
     include
-    ${VMXPI_INCLUDE_DIRS} # Include VMXPi headers if found
+    /usr/local/include/vmxpi 
+    /usr/local/include/studica_drivers
+    # ${VMXPI_INCLUDE_DIRS} # Include VMXPi headers if found
   )
 else()
   include_directories(include) # Still include 'include' directory for package's own headers
@@ -60,11 +62,11 @@ find_package(xacro REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
-find_package(gazebo_ros REQUIRED)
+# find_package(gazebo_ros REQUIRED)
 find_package(backward_ros REQUIRED)
 # For control
 find_package(ros2_control REQUIRED)
-find_package(gazebo_ros2_control REQUIRED)
+# find_package(gazebo_ros2_control REQUIRED)
 find_package(joint_state_broadcaster REQUIRED)
 find_package(joint_trajectory_controller REQUIRED)
 find_package(velocity_controllers REQUIRED)
@@ -91,7 +93,7 @@ if(VMXPI_FOUND)
   )
   target_link_libraries(vmxpi_ros2
     PUBLIC
-    /usr/local/lib/libstudica_drivers.so
+    /usr/local/lib/studica_drivers/libstudica_drivers.so
     # ${VMXPI_LIBRARIES} # Link against VMXPi library if found
   )
 else()

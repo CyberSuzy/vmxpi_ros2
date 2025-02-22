@@ -103,7 +103,7 @@ def generate_launch_description():
 
     rviz_config_file = PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "description/diffbot/rviz", "diffbot.rviz"])
           
-    robot_controllers = PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "bringup/config", "diffbot_controllers.yaml"])
+    robot_controllers = PathJoinSubstitution([FindPackageShare("vmxpi_ros2"), "config", "diffbot_controllers.yaml"])
 
     
 
