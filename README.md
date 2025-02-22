@@ -52,7 +52,10 @@ For VMX setup, switch to the root user and source the necessary files:
 
 ```bash
 sudo su 
+cd  /home/vmx/ros2_ws
 source /home/vmx/.bashrc 
+source install/setup.bash 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/studica_drivers
 ros2 launch vmxpi_ros2 diffbot_gazebo_classic.launch.py use_hardware:=true
 ```
 

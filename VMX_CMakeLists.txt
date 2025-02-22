@@ -16,31 +16,13 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rclcpp_lifecycle
 )
 
-# Find VMXPi library and headers (CONDITIONAL)
-find_library(VMXPI_LIBRARY
-  NAMES studica_drivers
-  HINTS /usr/local/lib/studica_drivers
-        /usr/local/lib
-  )
-
-find_path(VMXPI_INCLUDE_DIR
-  NAMES titan.h
-  HINTS /usr/local/include/studica_drivers
-        /usr/local/include
-  )
-
-# Check if VMXPi library and headers were found
-if(VMXPI_LIBRARY AND VMXPI_INCLUDE_DIR)
-  message(STATUS "VMXPi library and headers FOUND: Using hardware interface.")
-  set(VMXPI_FOUND TRUE)
-  set(VMXPI_LIBRARIES ${VMXPI_LIBRARY})
-  set(VMXPI_INCLUDE_DIRS ${VMXPI_INCLUDE_DIR})
-else()
-  message(WARNING "VMXpi library and headers NOT FOUND: Building without hardware interface support.")
-  set(VMXPI_FOUND FALSE)
-  set(VMXPI_LIBRARIES "")
-  set(VMXPI_INCLUDE_DIRS "")
-endif()
+include_directories( # <- #include <"">
+  include 
+  /usr/local/include/vmxpi 
+  /usr/local/include/studica_drivers
+  # ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp
+)
+ 
 
 # find dependencies
 find_package(backward_ros REQUIRED)
@@ -55,33 +37,18 @@ add_library(
   SHARED
   hardware/rrbot.cpp
   hardware/diffbot_system.cpp
+  hardware/titan_system.cpp
 )
 
-if(VMXPI_FOUND)
-  include_directories(
-    include
-    ${VMXPI_INCLUDE_DIRS}
-    /usr/local/include/vmxpi
-  )
-
-  target_sources(vmxpi_ros2
-    PRIVATE
-    hardware/titan_system.cpp
-  )
-
-  target_link_libraries(vmxpi_ros2
-    PUBLIC
-    ${VMXPI_LIBRARIES}
-  )
-else()
-  include_directories(include)
-  message(WARNING "Skipping compilation of hardware interface code.")
-endif()
+target_link_libraries(vmxpi_ros2
+  PUBLIC
+  /usr/local/lib/libstudica_drivers.so
+)
 
 target_compile_features(vmxpi_ros2 PUBLIC cxx_std_17)
 target_include_directories(vmxpi_ros2 PUBLIC
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/hardware/include>
-  $<INSTALL_INTERFACE:include/vmxpi_ros2>
+$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/hardware/include>
+$<INSTALL_INTERFACE:include/vmxpi_ros2>
 )
 ament_target_dependencies(
   vmxpi_ros2 PUBLIC
