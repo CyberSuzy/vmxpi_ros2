@@ -22,6 +22,7 @@
 #include <memory>
 #include <sstream>
 #include <vector>
+#include <math.h>
 
 #include "hardware_interface/lexical_casts.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
@@ -154,18 +155,18 @@ hardware_interface::CallbackReturn TitanSystemHardware::on_activate(
   titan_driver_->ResetEncoder(3);
 
     // These are flags to be uncommented as needed
-  // titan_driver_->InvertEncoderDirection(0);
-  // titan_driver_->InvertEncoderDirection(1);
+  titan_driver_->InvertEncoderDirection(0);
+  titan_driver_->InvertEncoderDirection(1);
   // titan_driver_->InvertEncoderDirection(2);
   // titan_driver_->InvertEncoderDirection(3);
 
-  // titan_driver_->InvertMotorDirection(0);
-  // titan_driver_->InvertMotorDirection(1);
+  titan_driver_->InvertMotorDirection(0);
+  titan_driver_->InvertMotorDirection(1);
   // titan_driver_->InvertMotorDirection(2);
   // titan_driver_->InvertMotorDirection(3);
 
-  // titan_driver_->InvertMotorRPM(0);
-  // titan_driver_->InvertMotorRPM(1);
+  titan_driver_->InvertMotorRPM(0);
+  titan_driver_->InvertMotorRPM(1);
   // titan_driver_->InvertMotorRPM(2);
   // titan_driver_->InvertMotorRPM(3);
 
@@ -211,13 +212,13 @@ hardware_interface::return_type TitanSystemHardware::read(
     static int32_t last_encoder_count_left = 0;  // Static variables to store previous encoder counts
     static int32_t last_encoder_count_right = 0;
 
-    int32_t current_encoder_count_left = titan_driver_->GetEncoderCount(0);
-    int32_t current_encoder_count_right = titan_driver_->GetEncoderCount(1);
+    int32_t current_encoder_count_left = (titan_driver_->GetEncoderCount(2)+titan_driver_->GetEncoderCount(3))/2;
+    int32_t current_encoder_count_right = (titan_driver_->GetEncoderCount(0)+titan_driver_->GetEncoderCount(1))/2;
 
     // --- Velocity Calculation (based on encoder count difference over time) ---
     // ** IMPORTANT: You will likely need to adjust the scaling factor! **
     double encoder_ticks_per_revolution = 1464.0; // Example: Adjust to your encoder's ticks per revolution
-    double wheel_circumference = 0.1; // Example: Wheel circumference in meters (adjust to your robot)
+    double wheel_circumference = M_PI * 0.1; // Example: Wheel circumference in meters (adjust to your robot)
 
     double delta_encoder_count_left = current_encoder_count_left - last_encoder_count_left;
     double delta_encoder_count_right = current_encoder_count_right - last_encoder_count_right;
@@ -259,32 +260,23 @@ hardware_interface::return_type vmxpi_ros2 ::TitanSystemHardware::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   if (titan_driver_) {
-
     for (std::size_t i = 0; i < hw_commands_.size(); i++)
     {
-      double command_velocity = hw_commands_[i]; 
-
-      double speedCfg = command_velocity * 0.05; // <--- **ADD SCALING FACTOR HERE!** (Example: No scaling factor for now - adjust as needed)
-      // If Titan::SetSpeed expects percentage (0-100), and hw_commands_ is in range 0-1.0 m/s, you might use:
-      // double speedCfg = command_velocity * 100.0; // Example: Scale to percentage (0-100)
-
-      titan_driver_->SetSpeed(i, speedCfg); 
-    } 
-
-    // for (std::size_t i = 0; i < hw_commands_.size(); i++)
-    // {
-    //   // For wheel_left_joint (motor 0), wheel_right_joint (motor 1) - **VERIFY JOINT-MOTOR MAPPING**
-    //   if (i == 0) { // Assuming joint index 0 is left wheel, motor 0
-    //       titan_driver_->SetSpeed(0, hw_commands_[i]); // Send commanded velocity to motor 0
-    //   } else if (i == 1) { // Assuming joint index 1 is right wheel, motor 1
-    //       titan_driver_->SetSpeed(1, hw_commands_[i]); // Send commanded velocity to motor 1
-    //   } else { // Handle cases if you have more joints - maybe log a warning or error if unexpected
-    //       RCLCPP_WARN(get_logger(), "Unexpected joint index %zu in write() - Assuming only 2 wheels for now.", i);
-    //   }
-    // }
+      double speedCfg = hw_commands_[i] * 0.05;
+      // For wheel_left_joint (motor 0), wheel_right_joint (motor 1) - **VERIFY JOINT-MOTOR MAPPING**
+      if (i == 0) { // Assuming joint index 0 is left wheel, motor 0
+        titan_driver_->SetSpeed(2, speedCfg); // Send commanded velocity to motor 0
+        titan_driver_->SetSpeed(3, speedCfg); // Send commanded velocity to motor 0
+      } else if (i == 1) { // Assuming joint index 1 is right wheel, motor 1
+        titan_driver_->SetSpeed(0, speedCfg); // Send commanded velocity to motor 0
+        titan_driver_->SetSpeed(1, speedCfg); // Send commanded velocity to motor 0
+      } else { // Handle cases if you have more joints - maybe log a warning or error if unexpected
+          RCLCPP_WARN(get_logger(), "Unexpected joint index %zu in write() - Assuming only 2 wheels for now.", i);
+      }
+    }
     // RCLCPP_INFO(rclcpp::get_logger("MyRobotHardware"), "%s", ss_write.str().c_str()); // Use RCLCPP_DEBUG or RCLCPP_INFO_THROTTLE
-    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000, "Motor Speeds: Left: %f, Right: %f", // Less verbose logging
-                         hw_commands_[0], hw_commands_[1]);
+    // RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000, "Motor Speeds: Left: %f, Right: %f", // Less verbose logging
+    //                      hw_commands_[0], hw_commands_[1]);
 
 } else {
     RCLCPP_ERROR(get_logger(), "Titan driver is not initialized in write()!"); // Important error log
