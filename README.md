@@ -65,12 +65,14 @@ Update the source file for the root user:
 cp /etc/skel/.bash* ~
 ```
 
-Add the following lines to `.profile`:
+Add the following lines to `/root/.bashrc `:
 
 ```bash
 sudo su
+source /home/vmx/.bashrc 
 source /opt/ros/humble/setup.bash
 source /home/vmx/ros2_ws/install/setup.bash
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/studica_drivers
 export ROS_DOMAIN_ID=1
 export ROS_LOCALHOST_ONLY=0
 ros2 daemon stop
