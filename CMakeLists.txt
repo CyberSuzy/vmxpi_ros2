@@ -45,9 +45,17 @@ endif()
 # find dependencies
 find_package(backward_ros REQUIRED)
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
 endforeach()
+
+find_package(rosidl_default_generators REQUIRED)
+
 
 ## COMPILE
 add_library(
@@ -104,6 +112,15 @@ install(
   DIRECTORY bringup/launch bringup/config
   DESTINATION share/vmxpi_ros2
 )
+
+add_executable(robot_patrol_node src/patrol.cpp)
+ament_target_dependencies(robot_patrol_node rclcpp std_msgs nav_msgs sensor_msgs geometry_msgs)
+
+install(TARGETS
+   robot_patrol_node
+   DESTINATION lib/${PROJECT_NAME}
+ )
+
 install(TARGETS vmxpi_ros2
   EXPORT export_vmxpi_ros2
   ARCHIVE DESTINATION lib

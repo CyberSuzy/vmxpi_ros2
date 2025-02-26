@@ -25,7 +25,7 @@ sudo apt install ros-humble-xacro
 Build the package and source the setup file:
 
 ```bash
-colcon build --packages-select vmxpi_ros2 && source install/setup.bash
+cd ~/ros2_ws && colcon build --packages-select vmxpi_ros2 && source install/setup.bash
 ```
 
 ## Usage
