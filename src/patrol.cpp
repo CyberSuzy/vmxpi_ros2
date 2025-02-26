@@ -19,8 +19,8 @@ using namespace std::chrono_literals;
 class Patrol : public rclcpp::Node {
 public:
   Patrol() : Node("robot_patrol_node") {
-    publisher_ =
-        this->create_publisher<geometry_msgs::msg::TwistStamped>("diffbot_base_controller/cmd_vel", 10);
+    publisher_ = this->create_publisher<geometry_msgs::msg::TwistStamped>(
+        "diffbot_base_controller/cmd_vel", 10);
     subscription_ = this->create_subscription<nav_msgs::msg::Odometry>(
         "diffbot_base_controller/odom", 10,
         std::bind(&Patrol::odom_callback, this, std::placeholders::_1));
@@ -49,7 +49,12 @@ private:
     auto twist_stamped_msg = geometry_msgs::msg::TwistStamped();
     twist_stamped_msg.twist = message;
     twist_stamped_msg.header.stamp = this->now();
-    twist_stamped_msg.header.frame_id = "base_link"; // Or your robot's base frame
+    twist_stamped_msg.header.frame_id =
+        "base_link"; // Or your robot's base frame
+
+    RCLCPP_INFO(this->get_logger(),
+                "linearVelocityX[%f]    angularVelocityZ[%f]   direction_[%f]",
+                linearVelocityX, angularVelocityZ, direction_);
 
     RCLCPP_INFO(this->get_logger(),"linearVelocityX[%f]    angularVelocityZ[%f]      direction_[%f]",  linearVelocityX, angularVelocityZ, direction_);
     
