@@ -51,6 +51,10 @@ private:
     twist_stamped_msg.header.stamp = this->now();
     twist_stamped_msg.header.frame_id = "base_link"; // Or your robot's base frame
 
+    RCLCPP_INFO(this->get_logger(),"linearVelocityX[%f]    angularVelocityZ[%f]      direction_[%f]",  linearVelocityX, angularVelocityZ, direction_);
+    
+    
+
     publisher_->publish(twist_stamped_msg);
   }
 
@@ -113,11 +117,11 @@ private:
       }
     }
 
-    if (frontMinDistance <= 0.25) {
+    if (frontMinDistance <= 1.0) {
       linearVelocityX = 0.2;
       direction_ = getDirection_(frontMinDistanceAngle);
       angularVelocityZ = direction_ * -1;
-    } else if (frontMinDistance <= 0.35) {
+    } else if (frontMinDistance <= 2.0) {
       linearVelocityX = 0.5;
       direction_ = getDirection_(maxDistanceAngle);
       angularVelocityZ = direction_ / 2;
